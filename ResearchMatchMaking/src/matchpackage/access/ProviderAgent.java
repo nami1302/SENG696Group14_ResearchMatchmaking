@@ -18,33 +18,35 @@ import matchpackage.database.Provider;
 
 public class ProviderAgent extends EnhancedAgent {
 
-	ProviderGUI providerGUI;
-	Provider provider;
-	int check = 0;
-	String customerName = "";
-	String bidValue;
-	String decision = "PENDING";
-	int step = 0;
-	int caseVal = 0;
-	String contractDecision = "PENDING";
+	//Declaring provider project and chat GUI
 	private ProviderProjectGUI providerProjectGUI;
 	private ProviderChatGUI providerChatGUI;
+	
+	ProviderGUI providerGUI;
+	Provider provider;
+	ProviderFeedbackGUI providerFeedbackGUI;
+	
+	//Declaring named string values
 	String trackValues = "PENDING";
 	String endProject = "PENDING";
 	String changeRequest = "PENDING";
-	ProviderFeedbackGUI providerFeedbackGUI;
+	String contractDecision = "PENDING";
+	String customerName = "";
+	String bidValue;
+	String decision = "PENDING";
+	
+	int caseValue = 0;
+	
+	//Creating the agent
 
 	protected void setup() {
 		createAgent("Bidding", "matchpackage.contract.BiddingAgent");
 		providerGUI = new ProviderGUI(this);
 		System.out.printf("Hello! My name is %s%n", getLocalName());
-		// addBehaviour(new ProjectTracker(this, 2000));
 		addBehaviour(new ShowGUIProvider(this, 2000));
-		// addBehaviour(new SendBidDecisions());
-
-		// addBehaviour(new chatMessenger());
-
 	}
+	
+	//setting the visibility of feedback window as false so that it is closed.
 
 	public void closeFeedbackWindow()
 
@@ -58,99 +60,47 @@ public class ProviderAgent extends EnhancedAgent {
 		});
 
 	}
+	
+	//Updating the tracker
 	public void updateTracker(ProviderAgent a) {
-//		System.out.println("Update tracker in provider agent");
-//		SwingUtilities.invokeLater(new Runnable() {
-//			@Override
-//			public void run() {
-//				// customerGUI.setTextContract(displayProviders);
-//				addBehaviour(new RunUpdateTracker(a, 10000));
-//
-//			}
-//		});
 		trackValues = "DONE";
-
 	}
 
+	//Change Request
 	public void afterChangeRequest(String text) {
 		this.changeRequest = text;
 	}
 
+	//End of Project
 	public void endProject() {
 
 		endProject = "END";
 		providerFeedbackGUI = new ProviderFeedbackGUI(this);
 	}
 
-//	private class RunUpdateTracker extends TickerBehaviour {
-//
-//		public RunUpdateTracker(Agent a, long period) {
-//			super(a, period);
-//			// TODO Auto-generated constructor stub
-//		}
-//
-//		@Override
-//		protected void onTick() {
-//			// TODO Auto-generated method stub
-//			System.out.println("Running the update tracker");
-//			
-//		}
-//		
-//	}
 
-//	private class ProjectTracker extends TickerBehaviour {
-//
-//		public ProjectTracker(Agent a, long period) {
-//			super(a, period);
-//			// TODO Auto-generated constructor stub
-//		}
-//
-//		@Override
-//		protected void onTick() {
-//			// TODO Auto-generated method stub
-//			System.out.println("Project is on too");
-//			ACLMessage startMsg = blockingReceive();
-//			if (startMsg.getPerformative() == ACLMessage.REQUEST_WHENEVER) {
-//
-//				providerProjectGUI = new ProviderProjectGUI();
-//			}
-//
-//		}
-//
-//	}
-
-	// private class ChatMessenger extends TicketBehaviour{
-
+	//Show the GUI of provider
 	public void showGUI() {
 
 		this.providerGUI.showGUI();
 	}
 
+	//After clicking on bid the decision is made and displayed
 	public void afterBidClick(String text) {
-
 		decision = text;
-//		System.out.println("hereeeeeeeee1111");
-//		System.out.println("hereeeeeeeeeeeee");
-//		check = 1;
-//		System.out.println("Value of check is  " + check);
-//		System.out.println("Value of decision is  " + decision);
-
-		// this.madeBehaviour = new SendBidDecision();
-		// check = 1;
-		// addBehaviour(new SendBidDecision());
-		// this.addBehaviour(madeBehaviour);
-
-		// addBehaviour(new SendBidDecisions(myAgent, Long.valueOf(1000)));
 	}
 
+	//After clicking on contract, contractDecision is displayed
 	public void afterContractClick(String text) {
 		contractDecision = text;
 	}
 
+	//Feedback GUI opened
 	public void openFeedbackGUI() {
 
 	}
 
+	
 	private class ShowGUIProvider extends TickerBehaviour {
 
 		ProviderAgent providerAgent;
@@ -164,13 +114,13 @@ public class ProviderAgent extends EnhancedAgent {
 		@Override
 		protected void onTick() {
 
-			switch (caseVal) {
+			switch (caseValue) {
 
 			case 0:
 
 				ACLMessage msg = myAgent.blockingReceive();
 
-				System.out.println("I am in Provider agent and want to di");
+				System.out.println("I am inside Provider agent");
 				if (msg.getContent().contentEquals("Open GUI")) {
 					System.out.println("Am i reaching here");
 					SwingUtilities.invokeLater(new Runnable() {
@@ -182,7 +132,7 @@ public class ProviderAgent extends EnhancedAgent {
 					});
 				}
 
-				caseVal = 1;
+				caseValue = 1;
 				break;
 
 			case 1:
@@ -193,42 +143,41 @@ public class ProviderAgent extends EnhancedAgent {
 
 					customerName = msg1.getSender().getLocalName();
 
-					System.out.println("I have recieved the proposal");
+					System.out.println("Proposal has been received by me");
 
 					bidValue = msg1.getContent();
 					double price = Double.parseDouble(bidValue);
 					String text = customerName + bidValue;
 					providerGUI.setBidText(text);
 
-					System.out.println("I am giving it the bid value");
-					System.out.println("***************************************************************************");
+					System.out.println("I am giving the bid value");
+					System.out.println("--------------------------------------------------------------------------------------");
 
 				}
 
-				caseVal = 2;
+				caseValue = 2;
 				break;
 
 			case 2:
 
 				if (!(decision.contentEquals("PENDING"))) {
 
-					System.out.println("I am reaching in action of ProviderAgent");
+					System.out.println("Action of ProviderAgent");
 					if (decision.contentEquals("Accept")) {
 						ACLMessage msgAccept = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
 						msgAccept.addReceiver(new AID("Bidding", AID.ISLOCALNAME));
-						// String sendContent = getAID().getLocalName() + "*" + customerName;
 						msgAccept.setContent(customerName);
 						send(msgAccept);
-						caseVal = 3;
+						caseValue = 3;
 					}
 
 					if (decision.contentEquals("Reject")) {
-						System.out.println("I am in here as well");
+						System.out.println("Action of Provider Agent");
 						ACLMessage bidMsgReply = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
 						bidMsgReply.addReceiver(new AID(customerName, AID.ISLOCALNAME));
 						bidMsgReply.setContent("Bid is rejected");
 						send(bidMsgReply);
-						caseVal = 1;
+						caseValue = 1;
 						decision = "PENDING";
 					}
 
@@ -244,7 +193,7 @@ public class ProviderAgent extends EnhancedAgent {
 					}
 				}
 
-				caseVal = 4;
+				caseValue = 4;
 
 				break;
 
@@ -252,15 +201,15 @@ public class ProviderAgent extends EnhancedAgent {
 
 				if (!(contractDecision.contentEquals("PENDING"))) {
 
-					System.out.println("I am reaching in contract action of ProviderAgent");
+					System.out.println("ProviderAgent: Contract Action");
 					if (decision.contentEquals("Accept")) {
-						System.out.println("I have played case 4 for provider agent");
+						System.out.println("Pending Decision");
 						ACLMessage msgAcceptContract = new ACLMessage(ACLMessage.INFORM);
 						msgAcceptContract.addReceiver(new AID("Bidding", AID.ISLOCALNAME));
 						msgAcceptContract.setContent("ACCEPT");
 						send(msgAcceptContract);
 						contractDecision = "PENDING";
-						caseVal = 1;
+						caseValue = 1;
 						decision = "PENDING";
 					}
 
@@ -270,12 +219,12 @@ public class ProviderAgent extends EnhancedAgent {
 						msgRejectContract.addReceiver(new AID("Bidding", AID.ISLOCALNAME));
 						msgRejectContract.setContent("REJECT");
 						send(msgRejectContract);
-						caseVal = 5;
+						caseValue = 5;
 						decision = "PENDING";
 						contractDecision = "PENDING";
 					}
 
-					caseVal = 5;
+					caseValue = 5;
 
 				}
 
@@ -283,13 +232,13 @@ public class ProviderAgent extends EnhancedAgent {
 
 			case 5:
 
-				System.out.println("Project is on too");
+				System.out.println("Project is on");
 				ACLMessage startMsg = blockingReceive();
 				if (startMsg.getPerformative() == ACLMessage.REQUEST_WHENEVER) {
 
 					providerProjectGUI = new ProviderProjectGUI(providerAgent);
 					providerChatGUI = new ProviderChatGUI();
-					caseVal = 6;
+					caseValue = 6;
 				}
 
 				break;
@@ -304,37 +253,11 @@ public class ProviderAgent extends EnhancedAgent {
 					msgTracker.addReceiver(new AID(customerName, AID.ISLOCALNAME));
 					msgTracker.setContent(content);
 					send(msgTracker);
-					caseVal = 8;
+					caseValue = 8;
 				}
 
 				break;
 
-//			case 7:
-//				System.out.println("I am inside case 7");
-//				ACLMessage recMsgChange = myAgent.blockingReceive();
-//				System.out.println("I have received the message");
-//				System.out.println(recMsgChange.getPerformative());
-//				SwingUtilities.invokeLater(new Runnable() {
-//					@Override
-//					public void run() {
-//
-//						providerProjectGUI.setRequestArea(recMsgChange.getContent());
-//
-//					}
-//				});
-//				
-//				while ((changeRequest.contentEquals("PENDING"))) {
-//					System.out.println("I am in while loop of provider agent");
-//				}
-//				if (recMsgChange.getPerformative() == ACLMessage.PROPOSE) {
-//					ACLMessage recMsgChangeReply = recMsgChange.createReply();
-//					recMsgChangeReply.setPerformative(ACLMessage.INFORM);
-//					recMsgChangeReply.setContent(changeRequest);
-//					send(recMsgChangeReply);
-//					caseVal = 8;
-//				}
-//
-//				break;
 
 			case 8:
 
@@ -344,7 +267,7 @@ public class ProviderAgent extends EnhancedAgent {
 					msgTracker.addReceiver(new AID(customerName, AID.ISLOCALNAME));
 					msgTracker.setContent(contentPr);
 					send(msgTracker);
-					caseVal =9;
+					caseValue =9;
 
 				}
 
@@ -357,7 +280,7 @@ public class ProviderAgent extends EnhancedAgent {
 				msgPayment.setContent("ASK FOR PAYMENT");
 				send(msgPayment);
 
-				caseVal = 10;
+				caseValue = 10;
 				break;
 
 			case 10:
@@ -366,7 +289,7 @@ public class ProviderAgent extends EnhancedAgent {
 				String paymentText = getPayment.getContent();
 				providerFeedbackGUI.setPaymentArea(paymentText);
 
-				caseVal = 1;
+				caseValue = 1;
 				
 				break;
 
@@ -374,59 +297,3 @@ public class ProviderAgent extends EnhancedAgent {
 		}
 	}
 }
-
-//private class SendBidDecision extends OneShotBehaviour {
-//
-//
-//
-//private static final long serialVersionUID = 1L;
-//
-//
-//@Override
-//public void action() {
-//
-//	System.out.println("sonaliiiiiiiiiii");
-//
-//	System.out.println("I am reaching in action of ProviderAgent");
-//	if (decision.contentEquals("Accept")) {
-//
-//	}
-//
-//	if (decision.contentEquals("Reject")) {
-//		System.out.println("I am in here as well");
-//		ACLMessage bidMsgReply = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
-//		bidMsgReply.addReceiver(new AID(customerName, AID.ISLOCALNAME));
-//		bidMsgReply.setContent("Bid is rejected");
-//		send(bidMsgReply);
-//	}
-//
-//}
-//
-//}
-//
-//private class SendBidDecisions extends CyclicBehaviour {
-//
-//@Override
-//public void action() {
-//
-//	if (!(decision.contentEquals("PENDING"))) {
-//
-//		System.out.println("I am reaching in action of ProviderAgent");
-//		if (decision.contentEquals("Accept")) {
-//
-//		}
-//
-//		if (decision.contentEquals("Reject")) {
-//			System.out.println("I am in here as well");
-//			ACLMessage bidMsgReply = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
-//			bidMsgReply.addReceiver(new AID(customerName, AID.ISLOCALNAME));
-//			bidMsgReply.setContent("Bid is rejected");
-//			send(bidMsgReply);
-//		}
-//
-//		check = 0;
-//	}
-//
-//}
-//
-//}
