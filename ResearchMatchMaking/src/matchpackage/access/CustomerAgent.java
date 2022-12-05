@@ -28,25 +28,29 @@ import matchpackage.database.ProviderList;
 public class CustomerAgent extends EnhancedAgent {
 
 	CustomerGUI customerGUI;
+	
 	Set<AID> foundAgents;
-	int check = 0;
+	
 	String keywords = "";
 	String providers = "";
-	ProviderList providerListNew;
+	ProviderList providerList;
+	String changeRequestText = "PENDING";
+	String providerName = "";
+	ClientFeedbackGUI clientFeedbackGUI;
+	
 	private ArrayList<Provider> sortedProviders;
 	private ArrayList<Provider> leftProviders;
 	private ArrayList<Provider> premiumProviders;
 	private ClientProjectGUI clientProjectGUI;
 	private ClientChatGUI clientChatGUI;
-	private int render = 0;
-	String changeRequestText = "PENDING";
-	String providerName = "";
-	ClientFeedbackGUI clientFeedbackGUI;
+	private int renderval = 0;
+	
+	int checkval = 0;
 
 	protected void setup() {
 
 		customerGUI = new CustomerGUI(this);
-		providerListNew = new ProviderList();
+		providerList = new ProviderList();
 		addBehaviour(new ShowGUICustomer(this, 10000));
 
 	}
@@ -55,7 +59,6 @@ public class CustomerAgent extends EnhancedAgent {
 
 	{
 		SwingUtilities.invokeLater(new Runnable() {
-			@Override
 			public void run() {
 				clientFeedbackGUI.setVisible(false);
 
@@ -66,8 +69,8 @@ public class CustomerAgent extends EnhancedAgent {
 
 	public void changeRequest(String text) {
 		changeRequestText = text;
-		System.out.println("I am inside changeRequest fucntion");
-		System.out.println("Valeu of changeRequestText is " + changeRequestText);
+		System.out.println("Inside changeRequest function");
+		System.out.println("Value of changeRequestText" + changeRequestText);
 	}
 
 	public void sendPaymentConfirmation() {
@@ -78,9 +81,7 @@ public class CustomerAgent extends EnhancedAgent {
 
 	private class SendPaymentConfirmationBehaviour extends OneShotBehaviour {
 
-		@Override
 		public void action() {
-			// TODO Auto-generated method stub
 			ACLMessage sendMessageConfirm = new ACLMessage(ACLMessage.AGREE);
 			sendMessageConfirm.setContent("Payment done");
 			sendMessageConfirm.addReceiver(new AID("BIDDING", AID.ISLOCALNAME));
@@ -92,7 +93,7 @@ public class CustomerAgent extends EnhancedAgent {
 
 	public void afterAcceptingContract(String text) {
 
-		System.out.println("I am in One shot behaviour customer after accepting contract");
+		System.out.println("In One shot behaviour customer after accepting contract");
 		addBehaviour(new SendContractMessage(text, this));
 
 	}
@@ -107,18 +108,16 @@ public class CustomerAgent extends EnhancedAgent {
 			this.contractDec = dec;
 		}
 
-		@Override
 		public void action() {
-			// TODO Auto-generated method stub
 
-			System.out.println("Am i going in the send contract customer agent");
+			System.out.println("Sending the contract to customer agent");
 
 			ACLMessage msgContractDec = new ACLMessage(ACLMessage.INFORM);
 			msgContractDec.addReceiver(new AID("Bidding", AID.ISLOCALNAME));
 			msgContractDec.setContent(contractDec);
 			send(msgContractDec);
 
-			System.out.println("Project is on too in customer");
+			System.out.println("Project is on customer");
 			ACLMessage startMsgClient = blockingReceive();
 			if (startMsgClient.getPerformative() == ACLMessage.REQUEST_WHENEVER) {
 
@@ -136,29 +135,6 @@ public class CustomerAgent extends EnhancedAgent {
 				clientProjectGUI.setTimeArea(dataContent[2]);
 
 			}
-//			int a = 0;
-//			while (changeRequestText.contentEquals("PENDING")) {
-//				if (a == 10000) {
-//					System.out.println("I am inside while");
-//					a = 0;
-//				}
-//					
-//				a = a+1;
-//			}
-//			System.out.println("I am out of while loop");
-//			System.out.println("The provider is " + providerName);
-//			
-//
-//			ACLMessage messageChangeText = new ACLMessage(ACLMessage.PROPOSE);
-//			messageChangeText.setContent(changeRequestText);
-//			messageChangeText.addReceiver(new AID(providerName, AID.ISLOCALNAME));
-//			send(messageChangeText);
-//			System.out.println("I have sent the message");
-//
-//			ACLMessage messageDecisionText = blockingReceive();
-//			if (messageDecisionText.getPerformative() == ACLMessage.INFORM) {
-//				clientProjectGUI.setTextArea(messageDecisionText.getContent());
-//			}
 
 			ACLMessage messageContentEnd = blockingReceive();
 			if (messageContentEnd.getPerformative() == ACLMessage.CANCEL) {
@@ -173,12 +149,11 @@ public class CustomerAgent extends EnhancedAgent {
 
 			clientFeedbackGUI = new ClientFeedbackGUI(myAgent);
 
-			System.out.println("I have reached here");
+			System.out.println("Reached here");
 			ACLMessage messagePayment = blockingReceive();
 			if (messagePayment.getPerformative() == ACLMessage.REQUEST) {
 
 				SwingUtilities.invokeLater(new Runnable() {
-					@Override
 					public void run() {
 						System.out.println("I am reaching here in though");
 						clientFeedbackGUI.setPaymentArea(messagePayment.getContent());
@@ -195,7 +170,7 @@ public class CustomerAgent extends EnhancedAgent {
 
 		this.keywords = words;
 		addBehaviour(new DisplaySortProviders(this, 10000));
-		render = 1;
+		renderval = 1;
 
 	}
 
@@ -209,7 +184,6 @@ public class CustomerAgent extends EnhancedAgent {
 
 		}
 
-		@Override
 		protected void onTick() {
 
 			sortedProviders = new ArrayList<Provider>();
@@ -223,14 +197,9 @@ public class CustomerAgent extends EnhancedAgent {
 				keywordsSplit1.add(i);
 			}
 
-			for (Provider provider : providerListNew.getProviders()) {
+			for (Provider provider : providerList.getProviders()) {
 
 				ArrayList<String> dataKeywords1 = provider.getKeywords();
-//
-//				if (!(Collections.disjoint(dataKeywords1, keywordsSplit1)))
-//					sortedProviders.add(provider);
-//				else
-//					leftProviders.add(provider);
 				
 				if(provider.getPlan().contentEquals("Premium")) {
 					premiumProviders.add(provider);
@@ -247,14 +216,11 @@ public class CustomerAgent extends EnhancedAgent {
 			premiumProviders.addAll(sortedProviders);
 			premiumProviders.addAll(leftProviders);
 
-			//sortedProviders.addAll(leftProviders);
 
-			displayProviders = providerListNew.getStringProviders(premiumProviders);
+			displayProviders = providerList.getStringProviders(premiumProviders);
 
 			SwingUtilities.invokeLater(new Runnable() {
-				@Override
 				public void run() {
-					// customerGUI.setTextContract(displayProviders);
 					customerGUI.setContentListProvider(displayProviders);
 
 					customerGUI.getProviderTable().repaint();
@@ -274,36 +240,27 @@ public class CustomerAgent extends EnhancedAgent {
 
 		public ShowGUICustomer(Agent a, long period) {
 			super(a, period);
-			// TODO Auto-generated constructor stub
 		}
 
-		@Override
 		protected void onTick() {
-			// TODO Auto-generated method stub
-			switch (check) {
+			switch (checkval) {
 
 			case 0:
 				ACLMessage msg = myAgent.blockingReceive();
 				System.out.println(msg);
 
 				SwingUtilities.invokeLater(new Runnable() {
-					@Override
 					public void run() {
 						customerGUI.showGUI();
 
 					}
 				});
-				check = 1;
+				checkval = 1;
 
 				break;
 
 			case 1:
-				// System.out.println("I am in 1");
 				foundAgents = searchForService("Web_services");
-				// System.out.println(foundAgents);
-//				for (AID j : foundAgents) {
-//					System.out.println("Name of the agents are");
-//				}
 
 				ACLMessage msgRequest = new ACLMessage(ACLMessage.REQUEST);
 				System.out.println("Am i here");
@@ -312,20 +269,14 @@ public class CustomerAgent extends EnhancedAgent {
 				send(msgRequest);
 
 				ACLMessage msgGetProvider = myAgent.blockingReceive();
-//				System.out.println("This is in case 1 of customer agent");
-//				System.out.println(msgGetProvider.getContent());
-//				System.out.println("Yes I am updating the table");
 				providers = msgGetProvider.getContent();
 
-				if (render == 0) {
-					// customerGUI.setTextContract(msgGetProvider.getContent());
+				if (renderval == 0) {
 					customerGUI.setContentListProvider(msgGetProvider.getContent());
 					customerGUI.getProviderTable().repaint();
 
 					SwingUtilities.invokeLater(new Runnable() {
-						@Override
 						public void run() {
-							// customerGUI.setTextContract(msgGetProvider.getContent());
 							customerGUI.setContentListProvider(msgGetProvider.getContent());
 
 							customerGUI.getProviderTable().repaint();
@@ -335,7 +286,7 @@ public class CustomerAgent extends EnhancedAgent {
 				}
 
 				String allProviders = msgGetProvider.getContent();
-				providerListNew = new ProviderList();
+				providerList = new ProviderList();
 				ArrayList<Provider> newUpdatedProviders = new ArrayList<Provider>();
 
 				String[] rowsDummy = allProviders.split("\n");
@@ -357,10 +308,7 @@ public class CustomerAgent extends EnhancedAgent {
 
 				}
 
-				providerListNew.setProviders(newUpdatedProviders);
-//				System.out.println("Checking out the providers");
-
-//				System.out.println(providerListNew.getStringProviders());
+				providerList.setProviders(newUpdatedProviders);
 
 				break;
 
@@ -387,9 +335,7 @@ public class CustomerAgent extends EnhancedAgent {
 			this.providerBidValue = bidValue;
 		}
 
-		@Override
 		public void action() {
-			// TODO Auto-generated method stub
 
 			ACLMessage bidMsg = new ACLMessage(ACLMessage.PROPOSE);
 			bidMsg.addReceiver(new AID(providerBidName, AID.ISLOCALNAME));

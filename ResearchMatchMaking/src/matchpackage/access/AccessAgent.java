@@ -14,46 +14,24 @@ import matchpackage.application.GuestGUI;
 import matchpackage.database.ProviderList;
 
 public class AccessAgent extends Agent {
-
+	
 	private ProviderList providerList;
-
+	
 	protected void setup() {
-
 		providerList = new ProviderList();
 		System.out.println("I am an Access Agent");
 		addBehaviour(new CallForProvidersList());
-		//createAllProviderAgent(providerList);
-
 	}
 	
-//	public void createAllProviderAgent(ProviderList providers) {
-//		for (providers.getProviders(): providers) {
-//			AID providerAID = providers
-//		}
-//	}
-
 	public class CallForProvidersList extends OneShotBehaviour {
-
-		@Override
+		
 		public void action() {
-
-			ACLMessage msg = myAgent.blockingReceive();
-			System.out.println(msg);
-			ACLMessage reply = msg.createReply();
+			
+			ACLMessage message = myAgent.blockingReceive();
+			System.out.println(message);
+			ACLMessage reply = message.createReply();
 			reply.setContent(providerList.getStringProvidersGuest());
 			send(reply);
-
 		}
 	}
-	
-//	protected void takeDown() {
-//		
-//		try {
-//			DFService.deregister(this);
-//		}
-//		catch (FIPAException fe) {
-//			fe.printStackTrace();
-//		}
-//	}
-
 }
