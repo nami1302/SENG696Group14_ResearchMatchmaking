@@ -14,11 +14,13 @@ public class LoginGUI extends JFrame implements ActionListener {
 		private JLabel name;
 		private JLabel password;
 		private JLabel headerLabel;
+		
+		private JTextArea nameText;
+		private JTextArea passwordText;
+		
 		private JButton submit;
 		private JPanel header, bottom, overall, total;
 
-		private JTextArea nameText;
-		private JTextArea passwordText;
 		private GUIAgent guiAgent;
 		
 		
@@ -57,25 +59,14 @@ public class LoginGUI extends JFrame implements ActionListener {
 			setTitle("Login Interface");
 			setSize(300, 300);
 			setVisible(true);
-			System.out.println("This is login graphical user interface");
-
-
+			System.out.println("This is the login interface!");
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			
-
 			if (e.getSource() == submit) {
-				System.out.println("Submit Login button has been clicked");
-				guiAgent.showCustomerProviderGUI(nameText.getText());
-				
-		
-				
-				
-				
-				
+				System.out.println("Submit button clicked for logging in");
+				guiAgent.showCustomerProviderGUI(nameText.getText());	
 			}
 		}
 

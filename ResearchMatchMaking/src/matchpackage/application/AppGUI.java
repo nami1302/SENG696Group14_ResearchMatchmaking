@@ -9,8 +9,8 @@ import javax.swing.*;
 public class AppGUI extends JFrame implements ActionListener {
 	
 	
-	private JLabel mainHeading = new JLabel("Hey! Welcome to the Research Matchmaking");
-	private JButton mainButton = new JButton("Please click here to access the application");
+	private JLabel mainHeading = new JLabel("Welcome to Research MatchMaking Project Version V1!");
+	private JButton mainButton = new JButton("Please click here to launch the App!");
 	private GuestGUI guestGUI;
 	private GUIAgent guiAgent;
 

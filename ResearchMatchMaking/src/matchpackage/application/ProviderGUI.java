@@ -127,7 +127,6 @@ public class ProviderGUI extends JFrame implements ActionListener {
 		if(e.getSource() == rejectBid) {
 			bidText.setText("");
 			providerAgent.afterBidClick("Reject");
-//			System.out.println("I am running in this though");
 		}
 		
 		if(e.getSource() == acceptContract) {

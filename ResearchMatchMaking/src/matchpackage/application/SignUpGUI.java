@@ -25,10 +25,12 @@ public class SignUpGUI extends JFrame implements ActionListener {
 	private JLabel service;
 	private JLabel headerLabel;
 	private JLabel hourlyCompensation;
+	
 	private JButton submit;
+	
 	private JPanel header, bottom, overall, total;
 	private JLabel planLabel;
-
+	
 	private JTextArea nameText;
 	private JTextArea passwordText;
 	private JTextArea resumeText;
@@ -204,11 +206,11 @@ public class SignUpGUI extends JFrame implements ActionListener {
 			}
 
 			if (value.contentEquals("Client")) {
-				System.out.println("It is a client");
+				System.out.println("Client");
 				this.guiAgent.createCustomerAgent(nameText.getText(), passwordText.getText());
 			} else {
 				String valuePlan = planComboBox.getSelectedItem().toString();
-				System.out.println("It is a provider");
+				System.out.println("Provider");
 				Double compensation = Double.parseDouble(hourlyCompensationText.getText());
 				ArrayList<String> keywordsArray = new ArrayList<String>();
 				String[] data = keywordsText.getText().split(",");
