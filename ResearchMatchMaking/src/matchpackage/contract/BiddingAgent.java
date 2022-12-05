@@ -41,7 +41,6 @@ public class BiddingAgent extends Agent {
 
 					providerName = messageAcceptProvider.getSender().getLocalName();
 					customerName = messageAcceptProvider.getContent();
-
 				}
 
 				check = 1;
@@ -106,11 +105,11 @@ public class BiddingAgent extends Agent {
 			case 5:
 
 				ACLMessage paymentMessage = blockingReceive();
-				System.out.println("I am in case 5 of bidding agent");
+				System.out.println("Bidding Agent: Case 5");
 				if (paymentMessage.getPerformative() == ACLMessage.PROPAGATE) {
 					ACLMessage paymentSendMsg = new ACLMessage(ACLMessage.REQUEST);
 					paymentSendMsg.addReceiver(new AID(customerName, AID.ISLOCALNAME));
-					paymentSendMsg.setContent("Please pay the 2500 Dollars");
+					paymentSendMsg.setContent("Please pay the amount");
 					send(paymentSendMsg);
 					check = 6;
 				}

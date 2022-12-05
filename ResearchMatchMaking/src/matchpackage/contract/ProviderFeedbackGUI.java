@@ -18,9 +18,12 @@ public class ProviderFeedbackGUI extends JFrame implements ActionListener {
 	private JPanel JPanel1, JPanel2, JPanel3, JPanel4;
 	private JLabel commentLabel, ratingLabel;
 	private JLabel paymentLabel;
+	
 	private JTextArea commentArea, ratingArea;
 	private JTextArea paymentArea;
+	
 	private JButton submit;
+	
 	private ProviderAgent providerAgent;
 
 	public ProviderFeedbackGUI(ProviderAgent agent) {

@@ -16,6 +16,7 @@ public class ProviderProjectGUI extends JFrame implements ActionListener {
 
 	private JPanel overall, JPanel1, JPanel2, JPanel3, JPanel4, JPanel5, JPanel6;
 	private JLabel tentativeDeadline, progress, time, changeRequest, status;
+	
 	private JTextArea deadlineArea, progressArea, timeArea, requestArea;
 	private JTextArea statusArea;
 	private JButton acceptRequest, rejectRequest, submitButton, endButton;
@@ -98,16 +99,17 @@ public class ProviderProjectGUI extends JFrame implements ActionListener {
 	}
 
 	@Override
+	//Function specifies and updates based on action performed by user
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 
 		if (e.getSource() == submitButton) {
-			System.out.println("Provider button on this is clicked");
+			System.out.println("Provider button has been clicked");
 			providerAgent.updateTracker(providerAgent);
 		}
 
 		if (e.getSource() == endButton) {
-			System.out.println("End button is pressed");
+			System.out.println("EndButton has been clicked");
 			providerAgent.endProject();
 		}
 
@@ -120,19 +122,23 @@ public class ProviderProjectGUI extends JFrame implements ActionListener {
 		}
 
 	}
-
+	
+	//text of deadline area
 	public String getDeadlineArea() {
 		return deadlineArea.getText();
 	}
 
+	//Progress text
 	public String getProgressArea() {
 		return progressArea.getText();
 	}
-
+	
+	//Time
 	public String getTimeArea() {
 		return timeArea.getText();
 	}
-
+	
+	//Request Area content is set.
 	public void setRequestArea(String content) {
 		this.requestArea.setText(content);
 	}
