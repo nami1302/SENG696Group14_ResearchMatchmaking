@@ -19,18 +19,12 @@ public class SortProvidersList {
 		providers = new ProviderList();
 		 sortedProviders = new ArrayList<Provider>();
 		 leftProviders = new ArrayList<Provider>();
-		 
 	}
-	
 	
 
 	public String sortProvidersList() {
-		
-		
 		String[] kewywordsSplitArray = keywords.split(",");
 		ArrayList<String> keywordsSplit = new ArrayList<String>();
-		
-		
 		
 		for (String i : kewywordsSplitArray) {
 			keywordsSplit.add(i);
@@ -45,17 +39,10 @@ public class SortProvidersList {
 			else
 				leftProviders.add(provider);
 			
-			
 		}
 		
 		sortedProviders.addAll(leftProviders);
-		
-	
-		
 		return providers.getStringProvidersGuest(sortedProviders);
-		
 	}
-	
-	
 
 }
