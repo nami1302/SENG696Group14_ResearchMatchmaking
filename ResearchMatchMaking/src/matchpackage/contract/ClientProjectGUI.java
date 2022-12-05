@@ -20,6 +20,7 @@ public class ClientProjectGUI extends JFrame implements ActionListener {
 	private JTextArea deadlineArea, progressArea, timeArea, requestArea, statusArea;
 	private JComboBox comboBox;
 	private JButton submitRequest;
+	
 	CustomerAgent customerAgent;
 
 	public ClientProjectGUI(CustomerAgent customerAgent) {
@@ -86,14 +87,12 @@ public class ClientProjectGUI extends JFrame implements ActionListener {
 
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == submitRequest) {
 			customerAgent.changeRequest(requestArea.getText());
 			System.out.println("I am getting clicked");
 			System.out.println("the value is " + requestArea.getText());
 		}
-		// TODO Auto-generated method stub
 
 	}
 	

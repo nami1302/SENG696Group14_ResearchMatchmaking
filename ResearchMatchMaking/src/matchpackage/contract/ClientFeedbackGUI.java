@@ -19,11 +19,13 @@ public class ClientFeedbackGUI extends JFrame implements ActionListener {
 	private JLabel commentLabel, ratingLabel;
 	private JTextArea commentArea, ratingArea, paymentArea;
 	private JButton submit, paymentButton;
+	
 	CustomerAgent customerAgent;
 
 	public ClientFeedbackGUI(CustomerAgent customerAgent) {
 
 		this.customerAgent = customerAgent;
+		
 		overall = new JPanel();
 		JPanel1 = new JPanel();
 		JPanel2 = new JPanel();
@@ -35,7 +37,7 @@ public class ClientFeedbackGUI extends JFrame implements ActionListener {
 		JPanel2.setLayout(new GridLayout(1, 2, 1, 1));
 		JPanel4.setLayout(new GridLayout(1, 2, 1, 1));
 
-		commentLabel = new JLabel("Enter comments for the provider");
+		commentLabel = new JLabel("Leave comments for the provider");
 		ratingLabel = new JLabel("Leave a rating");
 
 		commentArea = new JTextArea(5, 10);
@@ -73,9 +75,7 @@ public class ClientFeedbackGUI extends JFrame implements ActionListener {
 
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
 		if(e.getSource() == submit) {
 			customerAgent.closeFeedbackWindow();
 			ratingArea.setText("");
