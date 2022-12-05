@@ -11,8 +11,6 @@ import jade.core.AgentContainer;
 import jade.lang.acl.ACLMessage;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
-//import jade.wrapper.ContainerController;
-//import jade.wrapper.AgentContainer;
 import jade.core.AgentContainer;
 import matchpackage.application.AppGUI;
 import matchpackage.database.Customer;
@@ -26,8 +24,9 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 
 public class GUIAgent extends EnhancedAgent {
-
+	
 	AppGUI appGUI;
+
 	private int step = 0;
 	private boolean bool = false;
 	private SignUpGUI signUpGUI;
@@ -39,251 +38,293 @@ public class GUIAgent extends EnhancedAgent {
 	private ArrayList<Provider> leftProviders1;
 	private ArrayList<Provider> premiumProviders1;
 
-	public boolean isBool() {
-		return bool;
+public boolean isBool() {
+	return bool;
+}
+
+public void setBool(boolean bool) {
+	this.bool = bool;
+}
+
+protected void setup() {
+
+	System.out.println("I am in GUIAgent");
+	System.out.println("---------------------------------------------");
+	System.out.println(".............................................");
+	System.out.println(getAID());
+	System.out.println(getAID().getLocalName());
+
+	appGUI = new AppGUI(this);
+
+	createAgent("Access", "matchpackage.access.AccessAgent");
+	createAgent("Search", "matchpackage.search.SearchAgent");
+
+	customerList = new CustomerList();
+
+	providerList = new ProviderList();
+
+
+	addBehaviour(new getListProviders());
 	}
 
-	public void setBool(boolean bool) {
-		this.bool = bool;
-	}
+public void runAfterLogin() {
 
-	protected void setup() {
+	addBehaviour(new SendListProvidersCustomer());
 
-		System.out.println("I am in GUIAgent");
-		System.out.println(".............................................");
-		System.out.println("*********************************************");
-		System.out.println(getAID());
-		System.out.println(getAID().getLocalName());
+}
 
-		appGUI = new AppGUI(this);
+public void createCustomerAgent(String name, String password) {
 
-		createAgent("Access", "matchpackage.access.AccessAgent");
-		createAgent("Search", "matchpackage.search.SearchAgent");
+	Customer customer = new Customer(name, password);
 
-		customerList = new CustomerList();
-		providerList = new ProviderList();
+	customerList.addCustomer(customer);
 
-		addBehaviour(new getListProviders());
 
-	}
+	AID customerAID = createAgentAID(name, "matchpackage.access.CustomerAgent");
 
-	public void runAfterLogin() {
-		addBehaviour(new SendListProvidersCustomer());
+}
 
-	}
 
-	public void createCustomerAgent(String name, String password) {
-		Customer customer = new Customer(name, password);
-		customerList.addCustomer(customer);
+public void createProviderAgent(String name, String password, String website, String logo, double compensation,
 
-		AID customerAID = createAgentAID(name, "matchpackage.access.CustomerAgent");
+		ArrayList<String> keywords, String resume, String plan) {
 
-	}
 
-	public void createProviderAgent(String name, String password, String website, String logo, double compensation,
-			ArrayList<String> keywords, String resume, String plan) {
+	Provider provider = new Provider(name, password, website, logo, compensation, keywords, resume);
 
-		Provider provider = new Provider(name, password, website, logo, compensation, keywords, resume);
-		provider.setPlan(plan);
-		providerList.addProvider(provider);
-		AID providerAID = createAgentAID(name, "matchpackage.access.ProviderAgent");
-		register("Web_services", providerAID);
-		setGuestProviders();
+	provider.setPlan(plan);
 
-	}
+	providerList.addProvider(provider);
 
-	public void showCustomerProviderGUI(String name) {
+	AID providerAID = createAgentAID(name, "matchpackage.access.ProviderAgent");
 
-		addBehaviour(new ShowGUICustomerProvider(name));
+	register("Web_services", providerAID);
 
-	}
+	setGuestProviders();
 
-	public void setGuestProviders() {
+}
 
-		appGUI.getGuestGUI().setContentListProvider(providerList.getStringProvidersGuest() + "\n");
+public void showCustomerProviderGUI(String name) {
 
-	}
 
-	public class ShowGUICustomerProvider extends OneShotBehaviour {
+	addBehaviour(new ShowGUICustomerProvider(name));
 
-		String name;
+}
 
-		public ShowGUICustomerProvider(String name) {
-			this.name = name;
+public void setGuestProviders() {
+
+
+	appGUI.getGuestGUI().setContentListProvider(providerList.getStringProvidersGuest() + "\n");
+
+}
+
+public class ShowGUICustomerProvider extends OneShotBehaviour {
+
+
+	String name;
+
+public ShowGUICustomerProvider(String name) {
+
+	this.name = name;
+}
+
+@Override
+public void action() {
+
+
+	System.out.println("class ShowGUICustomerProvider extends OneShotBehaviour");
+
+	ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+
+	msg.addReceiver(new AID(name, AID.ISLOCALNAME));
+
+	msg.setContent("Open GUI");
+
+	send(msg);
+
+	step = 3;
+  }
+
+}
+
+public class SendListProvidersCustomer extends CyclicBehaviour {
+
+public void action() {
+
+	ACLMessage msgGetProvider = myAgent.receive();
+
+	if (msgGetProvider.getContent().contentEquals("Get providers in Customer")) {
+
+
+		ACLMessage reply = msgGetProvider.createReply();
+
+		reply.setContent(providerList.getStringProviders());
+
+		send(reply);
+
+		System.out.println("I am in case 3 GUI agent");
+
+      }
+
+    }
+
+}
+
+public class getListProviders extends Behaviour {
+
+
+	String keywords = "";
+
+@Override
+public void action() {
+
+
+	switch (step) {
+
+
+	case 2:
+
+		sortedProviders1 = new ArrayList<Provider>();
+
+		leftProviders1 = new ArrayList<Provider>();
+
+		premiumProviders1 = new ArrayList<Provider>();
+
+		keywords = appGUI.getGuestGUI().getStringKeyWords();
+
+		ACLMessage msgSearch = new ACLMessage(ACLMessage.REQUEST);
+
+		msgSearch.addReceiver(new AID("Search", AID.ISLOCALNAME));
+
+		msgSearch.setLanguage("English");
+
+		msgSearch.setContent(keywords);
+
+		send(msgSearch);
+
+		ACLMessage msgResponse = myAgent.blockingReceive();
+
+
+		String[] kewywordsSplitArray1 = keywords.split(",");
+
+		ArrayList<String> keywordsSplit1 = new ArrayList<String>();
+
+
+		for (String i : kewywordsSplitArray1) {
+
+			keywordsSplit1.add(i);
+
 		}
 
-		@Override
-		public void action() {
 
-			System.out.println("class ShowGUICustomerProvider extends OneShotBehaviour");
-			ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-			msg.addReceiver(new AID(name, AID.ISLOCALNAME));
-			msg.setContent("Open GUI");
-			send(msg);
-			step = 3;
+		for (Provider provider : providerList.getProviders()) {
 
-		}
 
-	}
+			ArrayList<String> dataKeywords1 = provider.getKeywords();
 
-	public class SendListProvidersCustomer extends CyclicBehaviour {
 
-		@Override
-		public void action() {
-			// TODO Auto-generated method stub
-			ACLMessage msgGetProvider = myAgent.receive();
-			if (msgGetProvider.getContent().contentEquals("Get providers in Customer")) {
+			if(provider.getPlan().contentEquals("Premium")) {
 
-				ACLMessage reply = msgGetProvider.createReply();
-				reply.setContent(providerList.getStringProviders());
-				send(reply);
-				System.out.println("I am in case 3 GUI agent");
+				premiumProviders1.add(provider);
 
-				// System.out.println(msgGetProvider);
+			}
+
+			else {
+
+				if(!(Collections.disjoint(dataKeywords1, keywordsSplit1)) )
+
+					sortedProviders1.add(provider);
+
+				else
+
+					leftProviders1.add(provider);
 
 			}
 
 		}
 
-	}
+		premiumProviders1.addAll(sortedProviders1);
 
-	public class getListProviders extends Behaviour {
+		premiumProviders1.addAll(leftProviders1);
 
-		String keywords = "";
 
-		@Override
-		public void action() {
+		SwingUtilities.invokeLater(new Runnable() {
+public void run() {
 
-			switch (step) {
+	appGUI.getGuestGUI().setContentListProvider(providerList.getStringProvidersGuest(premiumProviders1) + "\n");
 
-			case 2:
-				//...................................
-				sortedProviders1 = new ArrayList<Provider>();
-				leftProviders1 = new ArrayList<Provider>();
-				premiumProviders1 = new ArrayList<Provider>();
-				//...................................
-				keywords = appGUI.getGuestGUI().getStringKeyWords();
-				ACLMessage msgSearch = new ACLMessage(ACLMessage.REQUEST);
-				msgSearch.addReceiver(new AID("Search", AID.ISLOCALNAME));
-				msgSearch.setLanguage("English");
-				msgSearch.setContent(keywords);
-				send(msgSearch);
-				ACLMessage msgResponse = myAgent.blockingReceive();
-				//System.out.println(msgResponse);
+	appGUI.getGuestGUI().setEnterKeywords("");
 
-//				SwingUtilities.invokeLater(new Runnable() {
-//					@Override
-//					public void run() {
-//
-//						//appGUI.getGuestGUI().setContentListProvider(msgResponse.getContent() + "\n");
-//						appGUI.getGuestGUI().setEnterKeywords("");
-//
-//						System.out.println("1000");
-//					}
-//				});
-				
-				//.............................................................................
-				//.............................................................................
-				
 
-				String[] kewywordsSplitArray1 = keywords.split(",");
-				ArrayList<String> keywordsSplit1 = new ArrayList<String>();
-				
-				
-				
-				for (String i : kewywordsSplitArray1) {
-					keywordsSplit1.add(i);
-				}
-				
-				for (Provider provider : providerList.getProviders()) {
-					
-					ArrayList<String> dataKeywords1 = provider.getKeywords();
-					
-					if(provider.getPlan().contentEquals("Premium")) {
-						premiumProviders1.add(provider);
-					}
-					else {
-						if(!(Collections.disjoint(dataKeywords1, keywordsSplit1)) )
-							sortedProviders1.add(provider);
-						else
-							leftProviders1.add(provider);
-					}
-					
-					
-					
-					
-				}
-				premiumProviders1.addAll(sortedProviders1);
-				premiumProviders1.addAll(leftProviders1);
-				
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
+	System.out.println("1000");
+   }
+});
 
-						//appGUI.getGuestGUI().setContentListProvider(msgResponse.getContent() + "\n");
-						appGUI.getGuestGUI().setContentListProvider(providerList.getStringProvidersGuest(premiumProviders1) + "\n");
-						appGUI.getGuestGUI().setEnterKeywords("");
 
-						System.out.println("1000");
-					}
-				});
-				
-				//appGUI.getGuestGUI().setContentListProvider(providerList.getStringProvidersGuest(sortedProviders1) + "\n");
-				
+		System.out.println("I am back in case2");
 
-				System.out.println("I am back in case2");
-				step = 0;
+		step = 0;
 
-				// bool = true;
-				break;
 
-			case 3:
+		break;
 
-				ACLMessage msgGetProvider = myAgent.blockingReceive();
-				if (msgGetProvider.getContent().contentEquals("Get providers in Customer")) {
 
-					ACLMessage reply = msgGetProvider.createReply();
-					reply.setContent(providerList.getStringProviders());
-					send(reply);
-					System.out.println("I am in case 3 GUI agent");
+	case 3:
 
-					//System.out.println(msgGetProvider);
 
-				}
+		ACLMessage msgGetProvider = myAgent.blockingReceive();
 
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
+		if (msgGetProvider.getContent().contentEquals("Get providers in Customer")) {
 
-						appGUI.getGuestGUI().setContentListProvider(providerList.getStringProvidersGuest() + "\n");
 
-					}
-				});
-				
-				
+			ACLMessage reply = msgGetProvider.createReply();
 
-				break;
+			reply.setContent(providerList.getStringProviders());
 
-			}
+			send(reply);
 
-		}
+			System.out.println("I am in case 3 GUI agent");
 
-		@Override
-		public boolean done() {
-			// TODO Auto-generated method stub
 
-			return bool;
+   }
 
-		}
 
-	}
+		SwingUtilities.invokeLater(new Runnable() {
+@Override
 
-	public int getStep() {
-		return step;
-	}
+public void run() {
 
-	public void setStep(int step) {
-		this.step = step;
-	}
+
+	appGUI.getGuestGUI().setContentListProvider(providerList.getStringProvidersGuest() + "\n");
+
+        }
+     });
+ 
+		break;
+
+   }
+
+}
+
+@Override
+
+public boolean done() {
+
+
+	return bool;
+
+   }
+
+}
+
+public int getStep() {
+
+	return step;
+}
+
+public void setStep(int step) {
+
+	this.step = step;
+  }
 
 }

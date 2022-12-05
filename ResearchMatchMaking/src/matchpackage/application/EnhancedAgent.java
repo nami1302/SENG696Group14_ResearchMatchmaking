@@ -30,7 +30,7 @@ public class EnhancedAgent extends Agent {
 				foundAgents.add(result.getName());
 			
 			}
-			System.out.println("I am  in DFAgent Desription");
+			System.out.println("I am  in DF Agent Desription");
 			return foundAgents;
 		} catch (FIPAException ex) {
 			ex.printStackTrace();

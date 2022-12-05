@@ -22,8 +22,14 @@ import matchpackage.access.CustomerAgent;
 
 public class CustomerGUI extends JFrame implements ActionListener {
 	
+
+	DefaultTableModel tableModel;
+	String[] columnNames = { "Name", "Website", "Logo", "Keywords", "Resume", "Compensation" };
+	
 	private CustomerAgent customerAgent;
-	private int selectedProvider;
+	
+	private int provider;
+	private int row;
 
 	private JPanel overallPanel, firstPanel, secondPanel, thirdPanel;
 	private JPanel fourthPanel, fifthPanel, buttonPanel, sixthPanel;
@@ -33,8 +39,6 @@ public class CustomerGUI extends JFrame implements ActionListener {
 	private JButton searchButton;
 
 	private JTextArea listProviders;
-	DefaultTableModel tableModel;
-	String[] columnNames = { "Name", "Website", "Logo", "Keywords", "Resume", "Compensation" };
 	private JScrollPane scrollProviders;
 	private JTable providerTable;
 
@@ -48,11 +52,8 @@ public class CustomerGUI extends JFrame implements ActionListener {
 	private JTextArea contractArea;
 	private JButton acceptContractButton;
 	private JButton rejectContractButton;
-	private int selectedRow;
 	private String providerName;
 	
-	//Adding mingrui Code...........
-	//..............................
 	private JButton trackingButton;
 	private JButton trackingAndFeedback;
 	private JButton ifChange;
@@ -97,15 +98,13 @@ public class CustomerGUI extends JFrame implements ActionListener {
 		
 		model.addListSelectionListener(new ListSelectionListener() {
 
-			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				// TODO Auto-generated method stub
 				if(!(model.isSelectionEmpty()))
-				   selectedRow = model.getMinSelectionIndex();
+				   row = model.getMinSelectionIndex();
 				System.out.println(model.toString());
 				System.out.println("Row has been selected........................");
-				System.out.println("Row no is " + selectedRow);
-				selectedProvider = selectedRow;
+				System.out.println("Row number " + row);
+				provider = row;
 					
 			}
 			
@@ -135,9 +134,7 @@ public class CustomerGUI extends JFrame implements ActionListener {
 		thirdPanel.add(contract);
 		thirdPanel.add(contractArea);
 		thirdPanel.add(buttonPanel);
-		
-		//Mingrui Code............................
-		//........................................
+
 		
 		trackingAndFeedback = new JButton("trakingAndFeedback");
 		ifChange = new JButton("change?");
@@ -163,10 +160,7 @@ public class CustomerGUI extends JFrame implements ActionListener {
 		setVisible(false);
 
 	}
-
-	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
 		
 		if(e.getSource() == searchButton) {
 			String keywords = keywordsArea.getText();
@@ -175,8 +169,8 @@ public class CustomerGUI extends JFrame implements ActionListener {
 		}
 		
 		if(e.getSource() == bidButton) {
-			System.out.println(providerTable.getValueAt(selectedRow, 0));
-			String providerName = providerTable.getValueAt(selectedRow, 0).toString();
+			System.out.println(providerTable.getValueAt(row, 0));
+			String providerName = providerTable.getValueAt(row, 0).toString();
 			String bidValue = bidValueArea.getText();
 			Double bidValues = Double.parseDouble(bidValue);
 		   customerAgent.placeBid (providerName, bidValues);
@@ -185,15 +179,12 @@ public class CustomerGUI extends JFrame implements ActionListener {
 		}
 		
 		if (e.getSource()==acceptContractButton){
-			
-			//this.contractArea.setText("The contract has been accepted");
 			customerAgent.afterAcceptingContract("ACCEPT");
 			
 		}
 
 		if (e.getSource()==rejectContractButton){
 			
-			//this.contractArea.setText("The contract has been rejected");
 			customerAgent.afterAcceptingContract("REJECT");
 		}
 		
@@ -211,9 +202,6 @@ public class CustomerGUI extends JFrame implements ActionListener {
 		this.changeText.setText(info);
 	}
 	
-//////.........................................
-		//.............................................End
-	
 
 	public void showGUI() {
 		this.setVisible(true);
@@ -223,7 +211,7 @@ public class CustomerGUI extends JFrame implements ActionListener {
 
 		tableModel.setRowCount(0);
 		tableModel.fireTableDataChanged();
-		System.out.println("I am in here updating the table in GUI agent");
+		System.out.println("Updating the table in GUI agent");
 
 		String[] listRows = content.split("\n");
 
@@ -242,13 +230,11 @@ public class CustomerGUI extends JFrame implements ActionListener {
 		tableModel.fireTableDataChanged();
 
 		System.out.println("I am getting the content to set " + content);
-		//providerTable.repaint();
 
 	}
 	
 	
 	public void tableRepaint() {
-		//providerTable.repaint();
 		tableModel.fireTableDataChanged();
 	}
 	

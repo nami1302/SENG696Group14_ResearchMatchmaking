@@ -13,6 +13,10 @@ import jade.core.behaviours.OneShotBehaviour;
 
 public class GuestGUI extends JFrame implements ActionListener {
 
+
+	String[] columnNames = { "Name", "Website", "Logo", "Keywords", "Resume" };
+
+	
 	private JPanel jPanel;
 	private JLabel welcomeLabel;
 	private JPanel subJPanel;
@@ -24,12 +28,11 @@ public class GuestGUI extends JFrame implements ActionListener {
 	private JButton searchButton;
 	private JScrollPane scrollProviders;
 	private JTable providerTable;
-	DefaultTableModel tableModel;
-
 	private GUIAgent guiAgent;
 	private SignUpGUI signUpGui;
 	private LoginGUI loginGUI;
-	String[] columnNames = { "Name", "Website", "Logo", "Keywords", "Resume" };
+	
+	DefaultTableModel tableModel;
 
 	public GuestGUI(GUIAgent guiAgent) {
 
@@ -38,7 +41,7 @@ public class GuestGUI extends JFrame implements ActionListener {
 		subJPanel = new JPanel(new FlowLayout());
 		topPanel = new JPanel(new FlowLayout());
 
-		welcomeLabel = new JLabel("Welcome as a Guest to the research matchmaking. Please enter list of keywords"
+		welcomeLabel = new JLabel("Welcome to the research matchmaking. You are logged in as a guest. Please enter list of keyword(s)"
 				+ " separated by comma for getting list of providers based on that.");
 		loginButton = new JButton("Login in");
 		signupButton = new JButton("Sign up");
@@ -75,15 +78,12 @@ public class GuestGUI extends JFrame implements ActionListener {
 
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
 		if (e.getSource() == searchButton) {
 
 			System.out.println("Button has been pressed");
 			String keywords = enterKeywords.getText();
 			guiAgent.setStep(2);
-			//guiAgent.callSearchKeywords(keywords);
 			
 			
 		}
